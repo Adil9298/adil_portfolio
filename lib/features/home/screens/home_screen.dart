@@ -28,6 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int currentIndex = 0;
 
+  final ScrollController _scrollController = ScrollController();
+
+  final GlobalKey homeKey = GlobalKey();
+  final GlobalKey skillsKey = GlobalKey();
+  final GlobalKey projectsKey = GlobalKey();
+  final GlobalKey contactKey = GlobalKey();
+
   final List<RoleModel> roles = [
     RoleModel(
       title: "Flutter Developer",
@@ -41,6 +48,18 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
+  void scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -51,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-
           /// MAIN DARK BACKGROUND
           Positioned.fill(
             child: Container(
@@ -134,6 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           SafeArea(
             child: SingleChildScrollView(
+              controller: _scrollController,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isMobile ? 20 : 60,
@@ -141,23 +160,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   children: [
+                    _buildNavbar(isMobile),
+
                     SizedBox(height: isMobile ? 10 : 30),
 
-                    isMobile
-                        ? _buildMobileLayout()
-                        : _buildDesktopLayout(isTablet),
+                    Container(
+                      key: homeKey,
+                      child: isMobile
+                          ? _buildMobileLayout()
+                          : _buildDesktopLayout(isTablet),
+                    ),
 
                     const SizedBox(height: 100),
 
-                    _buildSkillsSection(),
+                    Container(
+                      key: skillsKey,
+                      child: _buildSkillsSection(),
+                    ),
 
                     const SizedBox(height: 100),
 
-                    _buildProjectsSection(),
+                    Container(
+                      key: projectsKey,
+                      child: _buildProjectsSection(),
+                    ),
 
                     const SizedBox(height: 100),
 
-                    _buildContactSection(),
+                    Container(
+                      key: contactKey,
+                      child: _buildContactSection(),
+                    ),
 
                     const SizedBox(height: 80),
                   ],
@@ -170,13 +203,131 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildNavbar(bool isMobile) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+          /// NAME
+          ShaderMask(
+            shaderCallback: (bounds) {
+              return const LinearGradient(
+                colors: [
+                  Color(0xffFFF2B0),
+                  Color(0xffD4AF37),
+                ],
+              ).createShader(bounds);
+            },
+            child: const Text(
+              "MOHAMMED ADIL. K",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+
+          if (!isMobile)
+            Row(
+              children: [
+
+                navButton(
+                  "Home",
+                      () => scrollToSection(homeKey),
+                ),
+
+                navButton(
+                  "Skills",
+                      () => scrollToSection(skillsKey),
+                ),
+
+                navButton(
+                  "Projects",
+                      () => scrollToSection(projectsKey),
+                ),
+
+                navButton(
+                  "Contact",
+                      () => scrollToSection(contactKey),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget navButton(String text, VoidCallback onTap) {
+    bool hovered = false;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              hovered = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              hovered = false;
+            });
+          },
+          child: GestureDetector(
+            onTap: onTap,
+            child: AnimatedContainer(
+              duration: 300.ms,
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                color: hovered
+                    ? const Color(0xffD4AF37).withValues(alpha: .12)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: hovered
+                      ? const Color(0xffD4AF37)
+                      : Colors.transparent,
+                ),
+                boxShadow: hovered
+                    ? [
+                  BoxShadow(
+                    color: const Color(0xffD4AF37)
+                        .withValues(alpha: .25),
+                    blurRadius: 20,
+                  ),
+                ]
+                    : [],
+              ),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: hovered
+                      ? const Color(0xffD4AF37)
+                      : Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// MOBILE
   Widget _buildMobileLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Hi There 👋",
+          "Hey There 👋",
           style: TextStyle(
             color: Colors.white.withValues(alpha: .9),
             fontSize: 20,
@@ -203,18 +354,12 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Expanded(
             flex: 5,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildCards(),
-            ),
+            child: Align(alignment: Alignment.centerLeft, child: _buildCards()),
           ),
 
           const SizedBox(width: 50),
 
-          Expanded(
-            flex: 4,
-            child: _buildTexts(),
-          ),
+          Expanded(flex: 4, child: _buildTexts()),
         ],
       ),
     );
@@ -254,119 +399,298 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: Center(
               child: HoverTiltCard(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    /// FLAME GLOW
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xffD4AF37)
-                                  .withValues(alpha: .45),
-                              blurRadius: 40,
-                              spreadRadius: 5,
-                            ),
-                          ],
-                        ),
-                      )
-                          .animate(onPlay: (controller) => controller.repeat())
-                          .shimmer(
-                        duration: 5.seconds,
-                        color: Colors.white24,
+                child: SizedBox(
+                  width: 320,
+                  height: 470,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      /// FLAME AURA
+                      Positioned(
+                        bottom: 10,
+                        child:
+                            Container(
+                                  width: 240,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        const Color(
+                                          0xffD4AF37,
+                                        ).withValues(alpha: .0),
+                                        const Color(
+                                          0xffD4AF37,
+                                        ).withValues(alpha: .08),
+                                        const Color(
+                                          0xffFFB300,
+                                        ).withValues(alpha: .22),
+                                        const Color(
+                                          0xffFF6A00,
+                                        ).withValues(alpha: .18),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .animate(
+                                  onPlay: (controller) =>
+                                      controller.repeat(reverse: true),
+                                )
+                                .scaleXY(
+                                  begin: 1,
+                                  end: 1.08,
+                                  duration: 2.seconds,
+                                )
+                                .fade(begin: .65, end: 1, duration: 2.seconds),
                       ),
-                    ),
 
-                    /// CARD
-                    Container(
-                      width: 320,
-                      height: 430,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xff050505),
-                            const Color(0xff000000),
-                          ],
-                        ),
-                        border: Border.all(
-                          color: const Color(0xffD4AF37).withValues(alpha: .8),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          /// GOLD SHINE
-                          Positioned(
-                            top: -50,
-                            right: -50,
-                            child: Container(
-                              width: 180,
-                              height: 180,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xffD4AF37)
-                                    .withValues(alpha: .08),
-                              ),
-                            ),
+                      /// OUTER GLOW
+                      Positioned(
+                        bottom: 35,
+                        child: Container(
+                          width: 250,
+                          height: 250,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(
+                              0xffD4AF37,
+                            ).withValues(alpha: .10),
                           ),
+                        ),
+                      ),
 
-                          Positioned(
-                            bottom: 35,
-                            left: 25,
-                            right: 25,
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                      /// MAIN CARD
+                      Positioned(
+                        bottom: 0,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(34),
+                          ),
+                          child: Container(
+                            width: 270,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(34),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  const Color(0xff050505),
+                                  const Color(0xff000000),
+                                ],
+                              ),
+                              border: Border.all(
+                                color: const Color(
+                                  0xffD4AF37,
+                                ).withValues(alpha: .85),
+                                width: 1.4,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xffD4AF37,
+                                  ).withValues(alpha: .18),
+                                  blurRadius: 30,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Stack(
                               children: [
-                                Text(
-                                  role.title,
-                                  style: const TextStyle(
-                                    color: Color(0xffD4AF37),
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
+                                /// INNER GOLD LIGHT
+                                Positioned(
+                                  top: -40,
+                                  right: -40,
+                                  child: Container(
+                                    width: 140,
+                                    height: 140,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: const Color(
+                                        0xffD4AF37,
+                                      ).withValues(alpha: .07),
+                                    ),
                                   ),
                                 ),
 
-                                const SizedBox(height: 12),
+                                /// BOTTOM FLAME
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(34),
+                                      bottomRight: Radius.circular(34),
+                                    ),
+                                    child: Container(
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            const Color(0xffD4AF37)
+                                                .withValues(alpha: .0),
 
-                                Text(
-                                  role.subtitle,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: .7),
-                                    height: 1.6,
+                                            const Color(0xffD4AF37)
+                                                .withValues(alpha: .08),
+
+                                            const Color(0xffFFB300)
+                                                .withValues(alpha: .16),
+
+                                            const Color(0xffFF6A00)
+                                                .withValues(alpha: .14),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                        .animate(
+                                      onPlay: (controller) =>
+                                          controller.repeat(reverse: true),
+                                    )
+                                        .moveY(
+                                      begin: 0,
+                                      end: 8,
+                                      duration: 2.seconds,
+                                    ),
+                                  ),
+                                ),
+
+                                /// CONTENT
+                                Positioned(
+                                  bottom: 30,
+                                  left: 22,
+                                  right: 22,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        role.title,
+                                        style: const TextStyle(
+                                          color: Color(0xffD4AF37),
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 12),
+
+                                      Text(
+                                        role.subtitle,
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: .72,
+                                          ),
+                                          height: 1.6,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-
-                    /// IMAGE
-                    Positioned(
-                      top: -60,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: HeroImage(
-                          key: ValueKey(role.gifPath + currentIndex.toString()),
-                          image: role.gifPath,
                         ),
                       ),
-                    ),
-                  ],
+
+                      /// HERO GIF
+                      Positioned(
+                        top: 25,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 350),
+                          child: HeroImage(
+                            key: ValueKey(
+                              role.gifPath + currentIndex.toString(),
+                            ),
+                            image: role.gifPath,
+                          ),
+                        ),
+                      ),
+
+                      /// LEFT BUTTON
+                      if (currentIndex > 0)
+                        Positioned(
+                          left: 0,
+                          top: 130,
+                          child: roleSwitchButton(
+                            Icons.arrow_back_ios_new_rounded,
+                                () {
+                              _pageController.previousPage(
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                          ),
+                        ),
+
+                      /// RIGHT BUTTON
+                      if (currentIndex < roles.length - 1)
+                        Positioned(
+                          right: 0,
+                          top: 130,
+                          child: roleSwitchButton(
+                            Icons.arrow_forward_ios_rounded,
+                                () {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget roleSwitchButton(
+      IconData icon,
+      VoidCallback onTap,
+      ) {
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        width: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.black.withValues(alpha: .6),
+          border: Border.all(
+            color: const Color(0xffD4AF37)
+                .withValues(alpha: .7),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xffD4AF37)
+                  .withValues(alpha: .25),
+              blurRadius: 20,
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: const Color(0xffD4AF37),
+          size: 20,
+        ),
+      ),
+    )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .scaleXY(
+      begin: 1,
+      end: 1.08,
+      duration: 2.seconds,
     );
   }
 
@@ -378,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Hi There 👋",
+          "Hey There 👋",
           style: TextStyle(
             color: Colors.white.withValues(alpha: .85),
             fontSize: 22,
@@ -390,10 +714,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ShaderMask(
           shaderCallback: (bounds) {
             return const LinearGradient(
-              colors: [
-                Color(0xffF7E7A1),
-                Color(0xffD4AF37),
-              ],
+              colors: [Color(0xffF7E7A1), Color(0xffD4AF37)],
             ).createShader(bounds);
           },
           child: const Text(
@@ -445,15 +766,9 @@ class _HomeScreenState extends State<HomeScreen> {
           spacing: 20,
           runSpacing: 20,
           children: [
-            PremiumButton(
-              title: "View Projects",
-              filled: true,
-            ),
+            PremiumButton(title: "View Projects", filled: true,onTap: () => scrollToSection(projectsKey),),
 
-            PremiumButton(
-              title: "Download Resume",
-              filled: false,
-            ),
+            PremiumButton(title: "Download Resume", filled: false, onTap: () {},),
           ],
         ),
       ],
@@ -484,11 +799,7 @@ class _HomeScreenState extends State<HomeScreen> {
           spacing: 20,
           runSpacing: 20,
           alignment: WrapAlignment.center,
-          children: skills
-              .map(
-                (e) => SkillChip(skill: e),
-          )
-              .toList(),
+          children: skills.map((e) => SkillChip(skill: e)).toList(),
         ),
       ],
     );
@@ -511,9 +822,7 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: WrapAlignment.center,
               children: List.generate(
                 3,
-                    (index) => ProjectCard(
-                  isMobile: isMobile,
-                ),
+                (index) => ProjectCard(isMobile: isMobile),
               ),
             );
           },
@@ -575,10 +884,7 @@ class _HomeScreenState extends State<HomeScreen> {
           color: const Color(0xffD4AF37).withValues(alpha: .5),
         ),
       ),
-      child: Icon(
-        icon,
-        color: const Color(0xffD4AF37),
-      ),
+      child: Icon(icon, color: const Color(0xffD4AF37)),
     );
   }
 
@@ -586,10 +892,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ShaderMask(
       shaderCallback: (bounds) {
         return const LinearGradient(
-          colors: [
-            Color(0xffFFF2B0),
-            Color(0xffD4AF37),
-          ],
+          colors: [Color(0xffFFF2B0), Color(0xffD4AF37)],
         ).createShader(bounds);
       },
       child: Text(
@@ -607,17 +910,13 @@ class _HomeScreenState extends State<HomeScreen> {
 class HeroImage extends StatefulWidget {
   final String image;
 
-  const HeroImage({
-    super.key,
-    required this.image,
-  });
+  const HeroImage({super.key, required this.image});
 
   @override
   State<HeroImage> createState() => _HeroImageState();
 }
 
 class _HeroImageState extends State<HeroImage> {
-
   late String imagePath;
 
   @override
@@ -625,47 +924,35 @@ class _HeroImageState extends State<HeroImage> {
     super.initState();
 
     /// force browser refresh
-    imagePath =
-    "${widget.image}?v=${DateTime.now().millisecondsSinceEpoch}";
+    imagePath = "${widget.image}?v=${DateTime.now().millisecondsSinceEpoch}";
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
-      width: 250,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Image.network(
-          imagePath,
-          fit: BoxFit.contain,
-          gaplessPlayback: false,
-        ),
-      ),
-    )
-        .animate(
-      onPlay: (controller) => controller.repeat(reverse: true),
-    )
-        .moveY(
-      begin: -8,
-      end: 8,
-      duration: 3.seconds,
-    );
+          height: 300,
+          width: 250,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: Image.network(
+              imagePath,
+              fit: BoxFit.contain,
+              gaplessPlayback: false,
+            ),
+          ),
+        )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .moveY(begin: -8, end: 8, duration: 3.seconds);
   }
 }
 
 class PremiumButton extends StatefulWidget {
   final String title;
   final bool filled;
+  final VoidCallback onTap;
 
-  const PremiumButton({
-    super.key,
-    required this.title,
-    required this.filled,
-  });
+  const PremiumButton({super.key, required this.title, required this.filled, required this.onTap});
 
   @override
   State<PremiumButton> createState() => _PremiumButtonState();
@@ -679,43 +966,35 @@ class _PremiumButtonState extends State<PremiumButton> {
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
-      child: AnimatedContainer(
-        duration: 300.ms,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 28,
-          vertical: 18,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: widget.filled
-              ? const LinearGradient(
-            colors: [
-              Color(0xffD4AF37),
-              Color(0xff8B6B1F),
-            ],
-          )
-              : null,
-          border: Border.all(
-            color: const Color(0xffD4AF37),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: 300.ms,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: widget.filled
+                ? const LinearGradient(
+                    colors: [Color(0xffD4AF37), Color(0xff8B6B1F)],
+                  )
+                : null,
+            border: Border.all(color: const Color(0xffD4AF37)),
+            boxShadow: hovered
+                ? [
+                    BoxShadow(
+                      color: const Color(0xffD4AF37).withValues(alpha: .4),
+                      blurRadius: 20,
+                    ),
+                  ]
+                : [],
           ),
-          boxShadow: hovered
-              ? [
-            BoxShadow(
-              color: const Color(0xffD4AF37).withValues(alpha: .4),
-              blurRadius: 20,
+          transform: Matrix4.identity()..scale(hovered ? 1.05 : 1.0),
+          child: Text(
+            widget.title,
+            style: TextStyle(
+              color: widget.filled ? Colors.black : Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-          ]
-              : [],
-        ),
-        transform: Matrix4.identity()
-          ..scale(
-            hovered ? 1.05 : 1.0,
-          ),
-        child: Text(
-          widget.title,
-          style: TextStyle(
-            color: widget.filled ? Colors.black : Colors.white,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -726,10 +1005,7 @@ class _PremiumButtonState extends State<PremiumButton> {
 class SkillChip extends StatefulWidget {
   final String skill;
 
-  const SkillChip({
-    super.key,
-    required this.skill,
-  });
+  const SkillChip({super.key, required this.skill});
 
   @override
   State<SkillChip> createState() => _SkillChipState();
@@ -745,10 +1021,7 @@ class _SkillChipState extends State<SkillChip> {
       onExit: (_) => setState(() => hovered = false),
       child: AnimatedContainer(
         duration: 300.ms,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 22,
-          vertical: 14,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
@@ -759,19 +1032,14 @@ class _SkillChipState extends State<SkillChip> {
               : const Color(0xff050505),
           boxShadow: hovered
               ? [
-            BoxShadow(
-              color: const Color(0xffD4AF37).withValues(alpha: .3),
-              blurRadius: 20,
-            ),
-          ]
+                  BoxShadow(
+                    color: const Color(0xffD4AF37).withValues(alpha: .3),
+                    blurRadius: 20,
+                  ),
+                ]
               : [],
         ),
-        child: Text(
-          widget.skill,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        child: Text(widget.skill, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -780,10 +1048,7 @@ class _SkillChipState extends State<SkillChip> {
 class ProjectCard extends StatefulWidget {
   final bool isMobile;
 
-  const ProjectCard({
-    super.key,
-    required this.isMobile,
-  });
+  const ProjectCard({super.key, required this.isMobile});
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
@@ -801,11 +1066,7 @@ class _ProjectCardState extends State<ProjectCard> {
         duration: 400.ms,
         width: widget.isMobile ? double.infinity : 360,
         padding: const EdgeInsets.all(24),
-        transform: Matrix4.identity()
-          ..translate(
-            0.0,
-            hovered ? -10.0 : 0.0,
-          ),
+        transform: Matrix4.identity()..translate(0.0, hovered ? -10.0 : 0.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
@@ -814,11 +1075,11 @@ class _ProjectCardState extends State<ProjectCard> {
           color: const Color(0xff050505),
           boxShadow: hovered
               ? [
-            BoxShadow(
-              color: const Color(0xffD4AF37).withValues(alpha: .25),
-              blurRadius: 30,
-            ),
-          ]
+                  BoxShadow(
+                    color: const Color(0xffD4AF37).withValues(alpha: .25),
+                    blurRadius: 30,
+                  ),
+                ]
               : [],
         ),
         child: Column(
@@ -876,20 +1137,14 @@ class _ProjectCardState extends State<ProjectCard> {
 
   Widget miniTag(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         color: const Color(0xffD4AF37).withValues(alpha: .1),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Color(0xffD4AF37),
-          fontSize: 12,
-        ),
+        style: const TextStyle(color: Color(0xffD4AF37), fontSize: 12),
       ),
     );
   }
@@ -898,10 +1153,7 @@ class _ProjectCardState extends State<ProjectCard> {
 class HoverTiltCard extends StatefulWidget {
   final Widget child;
 
-  const HoverTiltCard({
-    super.key,
-    required this.child,
-  });
+  const HoverTiltCard({super.key, required this.child});
 
   @override
   State<HoverTiltCard> createState() => _HoverTiltCardState();
@@ -946,40 +1198,34 @@ class AnimatedBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: List.generate(
-        25,
-            (index) {
-          final random = Random();
+      children: List.generate(25, (index) {
+        final random = Random();
 
-          final left = random.nextDouble() * 1400;
-          final top = random.nextDouble() * 2000;
+        final left = random.nextDouble() * 1400;
+        final top = random.nextDouble() * 2000;
 
-          return Positioned(
-            left: left,
-            top: top,
-            child: Container(
-              width: random.nextDouble() * 4 + 2,
-              height: random.nextDouble() * 4 + 2,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xffD4AF37).withValues(alpha: .4),
-              ),
-            )
-                .animate(
-              onPlay: (controller) => controller.repeat(),
-            )
-                .moveY(
-              begin: 0,
-              end: -20,
-              duration: Duration(
-                seconds: random.nextInt(4) + 3,
-              ),
-            )
-                .fadeIn()
-                .fadeOut(),
-          );
-        },
-      ),
+        return Positioned(
+          left: left,
+          top: top,
+          child:
+              Container(
+                    width: random.nextDouble() * 4 + 2,
+                    height: random.nextDouble() * 4 + 2,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xffD4AF37).withValues(alpha: .4),
+                    ),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .moveY(
+                    begin: 0,
+                    end: -20,
+                    duration: Duration(seconds: random.nextInt(4) + 3),
+                  )
+                  .fadeIn()
+                  .fadeOut(),
+        );
+      }),
     );
   }
 }
