@@ -32,7 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final GlobalKey homeKey = GlobalKey();
   final GlobalKey skillsKey = GlobalKey();
+  final GlobalKey servicesKey = GlobalKey();
   final GlobalKey projectsKey = GlobalKey();
+  final GlobalKey experienceKey = GlobalKey();
   final GlobalKey contactKey = GlobalKey();
 
   final List<RoleModel> roles = [
@@ -174,8 +176,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 100),
 
                     Container(
+                      key: servicesKey,
+                      child: _buildServicesSection(),
+                    ),
+
+                    const SizedBox(height: 100),
+
+                    Container(
                       key: skillsKey,
                       child: _buildSkillsSection(),
+                    ),
+
+                    const SizedBox(height: 100),
+
+                    Container(
+                      key: experienceKey,
+                      child: _buildExperienceSection(),
                     ),
 
                     const SizedBox(height: 100),
@@ -203,61 +219,545 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavbar(bool isMobile) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 40),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildExperienceSection() {
+
+    return Column(
+      children: [
+
+        sectionTitle("Experience"),
+
+        const SizedBox(height: 50),
+
+        Wrap(
+          spacing: 30,
+          runSpacing: 30,
+          alignment: WrapAlignment.center,
+          children: [
+
+            experienceCard(
+              year: "2024 - Present",
+              title: "Flutter Developer",
+              subtitle:
+              "Building scalable Flutter applications with Firebase, Riverpod and premium UI systems.",
+            ),
+
+            experienceCard(
+              year: "2023 - Present",
+              title: "Data Scientist",
+              subtitle:
+              "Working on AI systems, machine learning workflows and intelligent analytics platforms.",
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget experienceCard({
+    required String year,
+    required String title,
+    required String subtitle,
+  }) {
+
+    return Container(
+      width: 400,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: const Color(0xffD4AF37)
+              .withValues(alpha: .4),
+        ),
+        color: const Color(0xff050505),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xffD4AF37)
+                .withValues(alpha: .12),
+            blurRadius: 30,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
 
-          /// NAME
-          ShaderMask(
-            shaderCallback: (bounds) {
-              return const LinearGradient(
-                colors: [
-                  Color(0xffFFF2B0),
-                  Color(0xffD4AF37),
-                ],
-              ).createShader(bounds);
-            },
-            child: const Text(
-              "MOHAMMED ADIL. K",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
+          Text(
+            year,
+            style: const TextStyle(
+              color: Color(0xffD4AF37),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: .7),
+              height: 1.8,
+            ),
+          ),
+        ],
+      ),
+    )
+        .animate()
+        .fade()
+        .slideY(
+      begin: .2,
+      end: 0,
+    );
+  }
+
+  PopupMenuItem<String> popupItem(String title) {
+
+    return PopupMenuItem<String>(
+      value: title,
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xffD4AF37),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavbar(bool isMobile) {
+
+    final isTablet =
+        MediaQuery.of(context).size.width < 1100;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 40),
+      child: isMobile
+
+      /// MOBILE NAVBAR
+          ? Row(
+        mainAxisAlignment:
+        MainAxisAlignment.spaceBetween,
+        children: [
+
+          Expanded(
+            child: ShaderMask(
+              shaderCallback: (bounds) {
+                return const LinearGradient(
+                  colors: [
+                    Color(0xffFFF2B0),
+                    Color(0xffD4AF37),
+                  ],
+                ).createShader(bounds);
+              },
+              child: const Text(
+                "MOHAMMED ADIL. K",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
               ),
             ),
           ),
 
-          if (!isMobile)
-            Row(
+          PopupMenuButton<String>(
+            color: const Color(0xff050505),
+            icon: const Icon(
+              Icons.menu_rounded,
+              color: Color(0xffD4AF37),
+            ),
+            onSelected: (value) {
+
+              switch(value) {
+
+                case "Home":
+                  scrollToSection(homeKey);
+                  break;
+
+                case "Services":
+                  scrollToSection(servicesKey);
+                  break;
+
+                case "Skills":
+                  scrollToSection(skillsKey);
+                  break;
+
+                case "Experience":
+                  scrollToSection(experienceKey);
+                  break;
+
+                case "Projects":
+                  scrollToSection(projectsKey);
+                  break;
+
+                case "Contact":
+                  scrollToSection(contactKey);
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+
+              popupItem("Home"),
+              popupItem("Services"),
+              popupItem("Skills"),
+              popupItem("Experience"),
+              popupItem("Projects"),
+              popupItem("Contact"),
+            ],
+          ),
+        ],
+      )
+
+      /// DESKTOP/TABLET NAVBAR
+          : Column(
+        children: [
+
+          Row(
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+
+              Expanded(
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return const LinearGradient(
+                      colors: [
+                        Color(0xffFFF2B0),
+                        Color(0xffD4AF37),
+                      ],
+                    ).createShader(bounds);
+                  },
+                  child: Text(
+                    "MOHAMMED ADIL. K",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isTablet ? 22 : 28,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 30),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+
+                      navButton(
+                        "Home",
+                            () => scrollToSection(homeKey),
+                      ),
+
+                      navButton(
+                        "Services",
+                            () => scrollToSection(servicesKey),
+                      ),
+
+                      navButton(
+                        "Skills",
+                            () => scrollToSection(skillsKey),
+                      ),
+
+                      navButton(
+                        "Experience",
+                            () => scrollToSection(experienceKey),
+                      ),
+
+                      navButton(
+                        "Projects",
+                            () => scrollToSection(projectsKey),
+                      ),
+
+                      navButton(
+                        "Contact",
+                            () => scrollToSection(contactKey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Flexible(
+              //   child: Wrap(
+              //     alignment: WrapAlignment.end,
+              //     runSpacing: 12,
+              //     spacing: 4,
+              //     children: [
+              //
+              //       navButton(
+              //         "Home",
+              //             () => scrollToSection(homeKey),
+              //       ),
+              //
+              //       navButton(
+              //         "Services",
+              //             () => scrollToSection(servicesKey),
+              //       ),
+              //
+              //       navButton(
+              //         "Skills",
+              //             () => scrollToSection(skillsKey),
+              //       ),
+              //
+              //       navButton(
+              //         "Experience",
+              //             () => scrollToSection(experienceKey),
+              //       ),
+              //
+              //       navButton(
+              //         "Projects",
+              //             () => scrollToSection(projectsKey),
+              //       ),
+              //
+              //       navButton(
+              //         "Contact",
+              //             () => scrollToSection(contactKey),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServicesSection() {
+
+    return Column(
+      children: [
+
+        sectionTitle("Services"),
+
+        const SizedBox(height: 20),
+
+        Text(
+          "Premium solutions crafted with Flutter & AI",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: .7),
+            fontSize: 18,
+            height: 1.8,
+          ),
+        ),
+
+        const SizedBox(height: 60),
+
+        Wrap(
+          spacing: 30,
+          runSpacing: 30,
+          alignment: WrapAlignment.center,
+          children: [
+
+            serviceCard(
+              icon: Icons.phone_android_rounded,
+              title: "Flutter App Development",
+              subtitle:
+              "Cross-platform mobile applications with premium UI, responsive architecture and scalable performance.",
+            ),
+
+            serviceCard(
+              icon: Icons.web_rounded,
+              title: "Web App Development",
+              subtitle:
+              "Modern responsive Flutter web applications with animations, admin dashboards and business systems.",
+            ),
+
+            serviceCard(
+              icon: Icons.auto_graph_rounded,
+              title: "Data Science Solutions",
+              subtitle:
+              "AI-driven analytics, prediction systems, machine learning workflows and intelligent automation.",
+            ),
+
+            serviceCard(
+              icon: Icons.dashboard_customize_rounded,
+              title: "Admin Dashboard Systems",
+              subtitle:
+              "Professional admin panels with Firebase, analytics, reports, role management and real-time systems.",
+            ),
+
+            serviceCard(
+              icon: Icons.cloud_done_rounded,
+              title: "Firebase Integration",
+              subtitle:
+              "Authentication, Firestore, notifications, cloud functions and complete backend architecture.",
+            ),
+
+            serviceCard(
+              icon: Icons.animation_rounded,
+              title: "Premium UI/UX Design",
+              subtitle:
+              "Luxury-level cinematic interfaces with smooth animations, futuristic interactions and modern UX.",
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget serviceCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+
+    bool hovered = false;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+
+        return MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              hovered = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              hovered = false;
+            });
+          },
+
+          child: AnimatedContainer(
+            duration: 400.ms,
+            width: 340,
+            padding: const EdgeInsets.all(28),
+
+            transform: Matrix4.identity()
+              ..translate(
+                0.0,
+                hovered ? -12.0 : 0.0,
+              ),
+
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+
+              border: Border.all(
+                color: const Color(0xffD4AF37)
+                    .withValues(alpha: hovered ? .8 : .35),
+              ),
+
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+
+                  hovered
+                      ? const Color(0xff101010)
+                      : const Color(0xff050505),
+
+                  Colors.black,
+                ],
+              ),
+
+              boxShadow: hovered
+                  ? [
+                BoxShadow(
+                  color: const Color(0xffD4AF37)
+                      .withValues(alpha: .25),
+                  blurRadius: 35,
+                  spreadRadius: 2,
+                ),
+              ]
+                  : [],
+            ),
+
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
 
-                navButton(
-                  "Home",
-                      () => scrollToSection(homeKey),
+                AnimatedContainer(
+                  duration: 300.ms,
+                  height: 72,
+                  width: 72,
+
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+
+                    gradient: LinearGradient(
+                      colors: [
+
+                        const Color(0xffD4AF37)
+                            .withValues(alpha: .25),
+
+                        const Color(0xff8B6B1F)
+                            .withValues(alpha: .12),
+                      ],
+                    ),
+
+                    boxShadow: hovered
+                        ? [
+                      BoxShadow(
+                        color: const Color(0xffD4AF37)
+                            .withValues(alpha: .3),
+                        blurRadius: 25,
+                      ),
+                    ]
+                        : [],
+                  ),
+
+                  child: Icon(
+                    icon,
+                    color: const Color(0xffD4AF37),
+                    size: 34,
+                  ),
                 ),
 
-                navButton(
-                  "Skills",
-                      () => scrollToSection(skillsKey),
+                const SizedBox(height: 28),
+
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
-                navButton(
-                  "Projects",
-                      () => scrollToSection(projectsKey),
-                ),
+                const SizedBox(height: 18),
 
-                navButton(
-                  "Contact",
-                      () => scrollToSection(contactKey),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: .7),
+                    height: 1.8,
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),
-        ],
-      ),
+          ),
+        );
+      },
+    )
+        .animate()
+        .fade()
+        .slideY(
+      begin: .2,
+      end: 0,
     );
   }
 
