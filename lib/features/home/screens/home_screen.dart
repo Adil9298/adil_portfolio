@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class RoleModel {
@@ -841,7 +843,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         const SizedBox(height: 40),
 
-        _buildTexts(),
+        _buildTexts(true),
       ],
     );
   }
@@ -859,7 +861,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(width: 50),
 
-          Expanded(flex: 4, child: _buildTexts()),
+          Expanded(flex: 4, child: _buildTexts(false)),
         ],
       ),
     );
@@ -1103,10 +1105,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         top: 25,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 350),
+                          transitionBuilder:
+                              (child, animation) {
+
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
                           child: HeroImage(
-                            key: ValueKey(
-                              role.gifPath + currentIndex.toString(),
-                            ),
+                            key: ValueKey(currentIndex),
                             image: role.gifPath,
                           ),
                         ),
@@ -1194,13 +1202,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTexts() {
+  Widget _buildTexts(bool isMobile) {
     final role = roles[currentIndex];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        if(!isMobile)
         Text(
           "Hey There 👋",
           style: TextStyle(
@@ -1209,6 +1218,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ).animate().fade().slideY(),
 
+        if(!isMobile)
         const SizedBox(height: 20),
 
         ShaderMask(
@@ -1410,42 +1420,118 @@ class _HomeScreenState extends State<HomeScreen> {
 class HeroImage extends StatefulWidget {
   final String image;
 
-  const HeroImage({super.key, required this.image});
+  const HeroImage({
+    super.key,
+    required this.image,
+  });
 
   @override
-  State<HeroImage> createState() => _HeroImageState();
+  State<HeroImage> createState() =>
+      _HeroImageState();
 }
 
-class _HeroImageState extends State<HeroImage> {
-  late String imagePath;
+class _HeroImageState
+    extends State<HeroImage> {
+
+  Uint8List? bytes;
 
   @override
   void initState() {
     super.initState();
 
-    /// force browser refresh
-    imagePath = "${widget.image}?v=${DateTime.now().millisecondsSinceEpoch}";
+    loadGif();
+  }
+
+  Future<void> loadGif() async {
+
+    final data =
+    await rootBundle.load(widget.image);
+
+    setState(() {
+      bytes = data.buffer.asUint8List();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (bytes == null) {
+      return const SizedBox(
+        height: 240,
+        width: 220,
+      );
+    }
+
     return Container(
-          height: 300,
-          width: 250,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Image.network(
-              imagePath,
-              fit: BoxFit.contain,
-              gaplessPlayback: false,
-            ),
-          ),
-        )
-        .animate(onPlay: (controller) => controller.repeat(reverse: true))
-        .moveY(begin: -8, end: 8, duration: 3.seconds);
+      height: 240,
+      width: 220,
+      decoration: BoxDecoration(
+        borderRadius:
+        BorderRadius.circular(30),
+      ),
+
+      child: ClipRRect(
+        borderRadius:
+        BorderRadius.circular(30),
+
+        child: Image.memory(
+          bytes!,
+          fit: BoxFit.contain,
+          gaplessPlayback: false,
+        ),
+      ),
+    )
+        .animate(
+      onPlay: (controller) =>
+          controller.repeat(reverse: true),
+    )
+        .moveY(
+      begin: -8,
+      end: 8,
+      duration: 3.seconds,
+    );
   }
 }
+
+// class HeroImage extends StatefulWidget {
+//   final String image;
+//
+//   const HeroImage({super.key, required this.image});
+//
+//   @override
+//   State<HeroImage> createState() => _HeroImageState();
+// }
+//
+// class _HeroImageState extends State<HeroImage> {
+//   late String imagePath;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//
+//     /// force browser refresh
+//     imagePath = "${widget.image}?v=${DateTime.now().millisecondsSinceEpoch}";
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//           height: 300,
+//           width: 250,
+//           decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
+//           child: ClipRRect(
+//             borderRadius: BorderRadius.circular(30),
+//             child: Image.network(
+//               imagePath,
+//               fit: BoxFit.contain,
+//               gaplessPlayback: false,
+//             ),
+//           ),
+//         )
+//         .animate(onPlay: (controller) => controller.repeat(reverse: true))
+//         .moveY(begin: -8, end: 8, duration: 3.seconds);
+//   }
+// }
 
 class PremiumButton extends StatefulWidget {
   final String title;
