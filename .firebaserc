@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "keygallery-34dd1"
+  },
+  "targets": {
+    "keygallery-34dd1": {
+      "hosting": {
+        "adil-portfolio": [
+          "adil-portfolio"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
