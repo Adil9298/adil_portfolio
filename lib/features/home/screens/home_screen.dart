@@ -1,22 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class RoleModel {
-  final String title;
-  final String subtitle;
-  final String gifPath;
-
-  RoleModel({
-    required this.title,
-    required this.subtitle,
-    required this.gifPath,
-  });
-}
+import '../../../models/role_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,11 +32,21 @@ class _HomeScreenState extends State<HomeScreen> {
     RoleModel(
       title: "Flutter Developer",
       subtitle: "Building premium cross-platform experiences.",
+      summary: '',
+      experience: [],
+      featuredProjects: [],
+      services: [],
+      skills: [],
       gifPath: "assets/gif/developer-gif.gif",
     ),
     RoleModel(
       title: "Data Scientist",
       subtitle: "Turning data into intelligent systems.",
+      summary: '',
+      experience: [],
+      featuredProjects: [],
+      services: [],
+      skills: [],
       gifPath: "assets/gif/scientist-gif.gif",
     ),
   ];
