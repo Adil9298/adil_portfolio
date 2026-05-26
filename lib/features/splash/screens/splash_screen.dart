@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:adil_portfolio/features/home/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -479,11 +480,39 @@ class _SplashScreenState
                         ],
                       ),
 
-                      child: Image.asset(
-                        "assets/images/ma_logo.png",
+                      child: FutureBuilder<ByteData>(
 
-                        fit:
-                        BoxFit.contain,
+                        future: rootBundle.load(
+                          "assets/images/ma_logo.png",
+                        ),
+
+                        builder: (
+                            context,
+                            snapshot,
+                            ) {
+
+                          if (!snapshot.hasData) {
+
+                            return const SizedBox();
+                          }
+
+                          final bytes =
+                          snapshot.data!
+                              .buffer
+                              .asUint8List();
+
+                          return Image.memory(
+                            bytes,
+
+                            fit: BoxFit.contain,
+
+                            /// IMPORTANT FOR WEB
+                            gaplessPlayback: false,
+
+                            /// FORCE FRESH IMAGE
+                            key: UniqueKey(),
+                          );
+                        },
                       ),
                     ),
                   ),

@@ -1417,11 +1417,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               350),
 
                           child: HeroImage(
-                            key: ValueKey(
-                                currentIndex),
-
-                            image:
-                            role.gifPath,
+                            key: UniqueKey(),
+                            image: role.gifPath,
                           ),
                         ),
                       ),
@@ -2286,17 +2283,41 @@ class _HeroImageState
   @override
   void initState() {
     super.initState();
+
     loadGif();
+  }
+
+  @override
+  void didUpdateWidget(
+      covariant HeroImage oldWidget,
+      ) {
+
+    super.didUpdateWidget(oldWidget);
+
+    /// FORCE RELOAD WHEN IMAGE CHANGES
+    if (oldWidget.image !=
+        widget.image) {
+
+      bytes = null;
+
+      loadGif();
+    }
   }
 
   Future<void> loadGif() async {
 
     final data =
-    await rootBundle.load(widget.image);
+    await rootBundle.load(
+        widget.image);
+
+    if (!mounted) return;
 
     setState(() {
-      bytes =
-          data.buffer.asUint8List();
+
+      /// CREATE FRESH MEMORY INSTANCE
+      bytes = Uint8List.fromList(
+        data.buffer.asUint8List(),
+      );
     });
   }
 
@@ -2326,8 +2347,13 @@ class _HeroImageState
 
         child: Image.memory(
           bytes!,
+
           fit: BoxFit.contain,
+
           gaplessPlayback: false,
+
+          /// IMPORTANT
+          key: UniqueKey(),
         ),
       ),
     )
