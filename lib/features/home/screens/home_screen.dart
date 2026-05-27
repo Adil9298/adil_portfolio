@@ -1,9 +1,11 @@
 import 'dart:math';
+import 'dart:html' as html;
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/role_model.dart';
 
@@ -455,10 +457,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
         {
           "title":
-          "Predictive Analytics Engine",
+          "Bike Rental Demand Prediction",
 
           "subtitle":
-          "Machine learning pipeline for predictive analytics, classification and business intelligence workflows.",
+          "This project builds machine learning models to predict bike rental demand using daily and hourly historical data based on environmental and seasonal factors.",
 
           "tags": [
             "Machine Learning",
@@ -1677,12 +1679,32 @@ class _HomeScreenState extends State<HomeScreen> {
             PremiumButton(
               title: "Download Resume",
               filled: false,
-              onTap: () {},
+              onTap: () {
+                if(currentRole.title == 'Flutter Developer'){
+                  downloadResume("assets/assets/resume/Mohammed_Adil_K---Resume_FD.pdf");
+                }
+                else{
+                  downloadResume("assets/assets/resume/Mohammed_Adil_K---Resume_DS.pdf");
+                }
+              },
             ),
           ],
         ),
       ],
     );
+  }
+
+  void downloadResume(String path) {
+
+    html.AnchorElement(
+      href:
+      path,
+    )
+      ..setAttribute(
+        "download",
+        "Mohammed_Adil_Resume.pdf",
+      )
+      ..click();
   }
 
   Widget _buildServicesSection() {
@@ -2143,95 +2165,435 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
 
-        sectionTitle("Contact"),
+        sectionTitle("Let's Connect"),
 
-        const SizedBox(height: 40),
+        const SizedBox(height: 20),
 
         Container(
           constraints:
           const BoxConstraints(
-            maxWidth: 900,
+            maxWidth: 1000,
           ),
 
-          padding: const EdgeInsets.all(30),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 30,
+            vertical: 40,
+          ),
 
           decoration: BoxDecoration(
+
             borderRadius:
-            BorderRadius.circular(24),
+            BorderRadius.circular(34),
+
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+
+              colors: [
+
+                const Color(0xff111111),
+
+                const Color(0xff050505),
+
+                Colors.black,
+              ],
+            ),
 
             border: Border.all(
               color: const Color(0xffD4AF37)
-                  .withValues(alpha: .4),
+                  .withValues(alpha: .35),
             ),
 
-            color: const Color(0xff080808),
-          ),
+            boxShadow: [
 
-          child: Column(
-            children: [
+              BoxShadow(
+                color: const Color(0xffD4AF37)
+                    .withValues(alpha: .12),
 
-              Text(
-                "Let's build something amazing together.",
-
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  color: Colors.white
-                      .withValues(alpha: .8),
-
-                  fontSize: 22,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              Wrap(
-                alignment:
-                WrapAlignment.center,
-
-                spacing: 20,
-                runSpacing: 20,
-
-                children: [
-
-                  socialButton(
-                      Icons.email),
-
-                  socialButton(
-                      Icons.code),
-
-                  socialButton(
-                      Icons.camera_alt),
-
-                  socialButton(
-                      Icons.business),
-                ],
+                blurRadius: 40,
+                spreadRadius: 2,
               ),
             ],
+          ),
+
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+
+              final isMobile =
+                  constraints.maxWidth < 700;
+
+              return Column(
+                children: [
+
+                  /// HEADING
+                  ShaderMask(
+                    shaderCallback: (bounds) {
+
+                      return const LinearGradient(
+                        colors: [
+
+                          Color(0xffFFF2B0),
+                          Color(0xffD4AF37),
+                        ],
+                      ).createShader(bounds);
+                    },
+
+                    child: Text(
+                      "Let's Build Something Extraordinary",
+
+                      textAlign: TextAlign.center,
+
+                      style: TextStyle(
+                        color: Colors.white,
+
+                        fontSize:
+                        isMobile ? 28 : 38,
+
+                        fontWeight:
+                        FontWeight.bold,
+
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// SUBTITLE
+                  ConstrainedBox(
+                    constraints:
+                    const BoxConstraints(
+                      maxWidth: 700,
+                    ),
+
+                    child: Text(
+                      "Whether it's a premium Flutter application, scalable backend system, AI-powered platform, or data-driven solution — let's create an experience that stands out.",
+
+                      textAlign: TextAlign.center,
+
+                      style: TextStyle(
+                        color: Colors.white
+                            .withValues(alpha: .72),
+
+                        fontSize:
+                        isMobile ? 15 : 17,
+
+                        height: 1.8,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 45),
+
+                  /// CONTACT BUTTONS
+                  Wrap(
+                    alignment:
+                    WrapAlignment.center,
+
+                    spacing: 24,
+                    runSpacing: 24,
+
+                    children: [
+
+                      premiumContactButton(
+
+                        icon:
+                        Icons.call_rounded,
+
+                        title: "Call Me",
+
+                        subtitle:
+                        "+91 8111867667",
+
+                        url:
+                        "tel:+918111867667",
+                      ),
+
+                      premiumContactButton(
+
+                        icon:
+                        Icons.email_rounded,
+
+                        title: "Send Mail",
+
+                        subtitle:
+                        "adilkakkoo@gmail.com",
+
+                        url:
+                        "mailto:adilkakkoo@gmail.com",
+                      ),
+
+                      premiumContactButton(
+
+                        icon:
+                        Icons.code_rounded,
+
+                        title: "GitHub",
+
+                        subtitle:
+                        "github.com",
+
+                        url:
+                        "https://github.com/Adil9298",
+                      ),
+
+                      premiumContactButton(
+
+                        icon:
+                        Icons.business_center_rounded,
+
+                        title: "LinkedIn",
+
+                        subtitle:
+                        "linkedin.com",
+
+                        url:
+                        "https://www.linkedin.com/in/adilkakkoo",
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget socialButton(IconData icon) {
+  Widget premiumContactButton({
 
-    return Container(
-      padding: const EdgeInsets.all(16),
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String url,
+  }) {
 
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
+    bool hovered = false;
 
-        border: Border.all(
-          color: const Color(0xffD4AF37)
-              .withValues(alpha: .5),
-        ),
-      ),
+    return StatefulBuilder(
+      builder: (context, setState) {
 
-      child: Icon(
-        icon,
-        color: const Color(0xffD4AF37),
-      ),
+        return MouseRegion(
+
+          onEnter: (_) {
+
+            setState(() {
+              hovered = true;
+            });
+          },
+
+          onExit: (_) {
+
+            setState(() {
+              hovered = false;
+            });
+          },
+
+          child: GestureDetector(
+
+            onTap: () async {
+
+              final uri = Uri.parse(url);
+
+              if (await canLaunchUrl(uri)) {
+
+                await launchUrl(
+                  uri,
+
+                  mode:
+                  LaunchMode
+                      .externalApplication,
+                );
+              }
+            },
+
+            child: AnimatedContainer(
+
+              duration: 350.ms,
+
+              width: 220,
+
+              padding:
+              const EdgeInsets.all(22),
+
+              transform:
+              Matrix4.identity()
+
+                ..translate(
+                  0.0,
+                  hovered ? -8.0 : 0.0,
+                ),
+
+              decoration: BoxDecoration(
+
+                borderRadius:
+                BorderRadius.circular(24),
+
+                gradient: hovered
+
+                    ? LinearGradient(
+                  begin:
+                  Alignment.topLeft,
+
+                  end:
+                  Alignment.bottomRight,
+
+                  colors: [
+
+                    const Color(
+                        0xffD4AF37)
+                        .withValues(
+                        alpha:
+                        .20),
+
+                    Colors.black,
+                  ],
+                )
+
+                    : const LinearGradient(
+                  begin:
+                  Alignment.topLeft,
+
+                  end:
+                  Alignment.bottomRight,
+
+                  colors: [
+
+                    Color(0xff111111),
+                    Color(0xff050505),
+                  ],
+                ),
+
+                border: Border.all(
+                  color:
+                  const Color(
+                      0xffD4AF37)
+                      .withValues(
+                      alpha:
+                      hovered
+                          ? .8
+                          : .35),
+                ),
+
+                boxShadow: hovered
+
+                    ? [
+
+                  BoxShadow(
+                    color:
+                    const Color(
+                        0xffD4AF37)
+                        .withValues(
+                        alpha:
+                        .20),
+
+                    blurRadius:
+                    30,
+
+                    spreadRadius:
+                    2,
+                  ),
+                ]
+
+                    : [],
+              ),
+
+              child: Column(
+
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+                children: [
+
+                  AnimatedContainer(
+
+                    duration: 300.ms,
+
+                    height: 60,
+                    width: 60,
+
+                    decoration: BoxDecoration(
+
+                      shape:
+                      BoxShape.circle,
+
+                      gradient:
+                      LinearGradient(
+                        colors: [
+
+                          const Color(
+                              0xffD4AF37)
+                              .withValues(
+                              alpha:
+                              .30),
+
+                          const Color(
+                              0xff8B6B1F)
+                              .withValues(
+                              alpha:
+                              .12),
+                        ],
+                      ),
+
+                      border: Border.all(
+                        color:
+                        const Color(
+                            0xffD4AF37)
+                            .withValues(
+                            alpha:
+                            .5),
+                      ),
+                    ),
+
+                    child: Icon(
+                      icon,
+
+                      color:
+                      const Color(
+                          0xffD4AF37),
+
+                      size: 28,
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  Text(
+                    title,
+
+                    style:
+                    const TextStyle(
+                      color:
+                      Colors.white,
+
+                      fontSize: 20,
+
+                      fontWeight:
+                      FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    subtitle,
+
+                    style: TextStyle(
+                      color: Colors.white
+                          .withValues(alpha: .65),
+
+                      fontSize: 14,
+
+                      height: 1.6,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
