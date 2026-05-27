@@ -39,6 +39,18 @@ class _SplashScreenState
 
   @override
   void initState() {
+
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
+
+      precacheImage(
+        const AssetImage(
+          "assets/images/ma_logo.png",
+        ),
+        context,
+      );
+    });
+
     super.initState();
 
     /// PAINT EFFECT
@@ -480,40 +492,13 @@ class _SplashScreenState
                         ],
                       ),
 
-                      child: FutureBuilder<ByteData>(
+                      child: Image.asset(
+                      "assets/images/ma_logo.png",
 
-                        future: rootBundle.load(
-                          "assets/images/ma_logo.png",
-                        ),
+                      fit: BoxFit.contain,
 
-                        builder: (
-                            context,
-                            snapshot,
-                            ) {
-
-                          if (!snapshot.hasData) {
-
-                            return const SizedBox();
-                          }
-
-                          final bytes =
-                          snapshot.data!
-                              .buffer
-                              .asUint8List();
-
-                          return Image.memory(
-                            bytes,
-
-                            fit: BoxFit.contain,
-
-                            /// IMPORTANT FOR WEB
-                            gaplessPlayback: false,
-
-                            /// FORCE FRESH IMAGE
-                            key: UniqueKey(),
-                          );
-                        },
-                      ),
+                      filterQuality: FilterQuality.high,
+                    ),
                     ),
                   ),
                 );
