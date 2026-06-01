@@ -2403,7 +2403,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   mode:
                   LaunchMode
-                      .externalApplication,
+                      .platformDefault,
                 );
               }
             },
